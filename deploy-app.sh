@@ -25,6 +25,7 @@ install-dependencies () {
 	echo "INSTALLING MONGODB"
 	wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | sudo apt-key add -
 	echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.2.list
+	sudo apt update
 	sudo apt-get install -y mongodb-org
 	echo "INSTALLED MONGO"
 	
@@ -61,14 +62,11 @@ setup-env-and-build-app () {
 	sudo npm install pm2 -g	
 	touch output.txt error.txt
 	echo '****pm2 start****'
-	bash -c -l 'pm2 start -o output.txt -e error.txt dist/server.js'
+	pm2 start -o output.txt -e error.txt dist/server.js
 	echo '****pm2 startup****'
-	echo "PM2 LOGS"
-	pm2 logs
-        sudo env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u chubi --hp /home/chubi
-	
+	pm2 startup
+	sudo env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u $USER --hp ~
 }
-
 setup-nginx () {
 	echo "INSTALLING NGINX"
 	sudo apt install nginx -y
@@ -101,3 +99,4 @@ setup-env-and-build-app
 curl localhost:80
 curl http://localhost:80
 curl localhost
+pm2 logs
